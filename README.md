@@ -1,7 +1,7 @@
 <div align="center">
 
-<a href="#try-the-interactive-demo">
-  <img src="docs/assets/rolehorizon-preview.png" alt="RoleHorizon interactive app preview — click to see how to try the demo" width="1100" />
+<a href="https://stephanboner.github.io/rolehorizon/">
+  <img src="docs/assets/rolehorizon-preview.png" alt="RoleHorizon — click to launch the interactive demo" width="1100" />
 </a>
 
 # RoleHorizon
@@ -9,7 +9,7 @@
 
 A personal job intelligence platform: discover roles across career pages, extract structured information, manage a shortlist, and optionally prepare application documents.
 
-**[Try the interactive demo](#try-the-interactive-demo) · [Installation guide](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)**
+**[Launch the live demo](https://stephanboner.github.io/rolehorizon/) · [Installation guide](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)**
 
 </div>
 
@@ -23,18 +23,18 @@ A personal job intelligence platform: discover roles across career pages, extrac
 
 The goal is a transparent **human-in-the-loop** workflow, not indiscriminate mass applications.
 
-## Try the interactive demo
+## Try the live interactive demo
 
-The demo is a **working frontend, not a screenshot**: you can search fictional roles, filter the shortlist and edit ratings or notes. It runs entirely in the browser with **synthetic data**—no Google Sheet, n8n instance, API key or login is required. Changes are temporary and reset when you reload. Job ingestion, scheduled scans and application-document generation require the separately configured backend.
+**[Launch RoleHorizon in your browser →](https://stephanboner.github.io/rolehorizon/)**
 
-The source lives at [`docs/index.html`](docs/index.html). GitHub's code viewer shows HTML source rather than running it; to interact with it today, open the downloaded file in a browser or serve the `docs/` folder locally:
+The hosted demo is a **working frontend, not a screenshot**: search fictional roles, filter your shortlist, update ratings and notes, and explore application statuses. It runs entirely in your browser with **synthetic data**—no Google Sheet, n8n instance, API key or login is required. Changes are temporary and reset when you reload. Job ingestion, scheduled scans and application-document generation require the separately configured backend.
+
+The demo is hosted with **GitHub Pages** from [`docs/index.html`](docs/index.html). To run that same demo locally instead:
 
 ```bash
 python3 -m http.server 8000 --directory docs
-# http://localhost:8000
+# Open http://localhost:8000
 ```
-
-When the repository owner enables **GitHub Pages → Deploy from a branch → main → /docs**, the same frontend will also be accessible through the public demo URL. Until then, the header image links here instead of sending visitors to an unavailable site.
 
 ## Repository contents
 
@@ -46,7 +46,7 @@ When the repository owner enables **GitHub Pages → Deploy from a branch → ma
 | [`automation/company-source-research.json`](automation/company-source-research.json) | 5-node n8n workflow for AI-assisted discovery of official career pages | **Yes**, after configuring authentication and AI |
 | [`automation/application-preparation-optional.json`](automation/application-preparation-optional.json) | 13-node workflow for explicitly requested draft preparation | **Optional**, requires private worker and file storage |
 | [`worker/`](worker/) | Python/FastAPI document worker with Docker build and URL fetch safeguards | **Optional**, requires a private rclone remote |
-| [`docs/`](docs/) | Interactive offline demo, setup and operational notes | **Yes** — static GitHub Pages site |
+| [`docs/`](docs/) | [Live interactive demo](https://stephanboner.github.io/rolehorizon/), source, setup and architecture notes | **Yes** — hosted on GitHub Pages |
 
 **Important:** Workflows are deliberately **inactive on import**, and all credential bindings were removed from the export. The templates are derived from a working personal installation, but **a newly imported deployment has not been end-to-end verified**. Complete and test all setup steps before activation.
 
