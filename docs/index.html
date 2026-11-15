@@ -451,6 +451,7 @@
     const isLive = typeof google !== 'undefined' && !!(google.script && google.script.run);
     const state = { jobs: [], query: '', rating: 'Alle', applied: 'all', active: null, loading: false, saving: false, bulkArchiving: false };
     const filters = ['Alle', 'Nicht bewertet', 'Top', 'Mittel', 'Too stretchy', 'langweilig', 'Falscher Ort', 'Prüfen'];
+    // Internal enum keys mirror the connected Apps Script / Sheets schema; all displayed labels are English.
     const ratingLabels = { 'Alle': 'All roles', 'Nicht bewertet': 'Unreviewed', 'Top': 'Top picks', 'Mittel': 'Medium fit', 'Too stretchy': 'Stretch roles', 'langweilig': 'Low interest', 'Falscher Ort': 'Wrong location', 'Prüfen': 'Needs review' };
     // Closed application statuses are excluded from the default list but remain available under the status filter.
     const inactiveApplicationStatuses = ['Eingeladen', 'Abgelehnt', 'Archiviert'];
@@ -1075,7 +1076,17 @@
       $(id).addEventListener('input', refreshSourceSaveState);
       $(id).addEventListener('change', refreshSourceSaveState);
     });
-    $('refresh').addEventListener('click', loadJobs);
+    function resetDemo() {
+      if (!isLive) {
+        state.query = '';
+        state.rating = 'Alle';
+        state.applied = 'all';
+        $('search').value = '';
+        $('appliedFilter').value = 'all';
+      }
+      loadJobs();
+    }
+    $('refresh').addEventListener('click', resetDemo);
     $('bulkArchive').addEventListener('click', archiveVisibleJobs);
     $('search').addEventListener('input', event => { state.query = event.target.value; render(); });
     $('appliedFilter').addEventListener('change', event => { state.applied = event.target.value; render(); });
