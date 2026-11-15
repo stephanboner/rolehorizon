@@ -5,7 +5,7 @@
 
 A personal job intelligence platform: discover roles across career pages, extract structured information, manage a shortlist, and optionally prepare application documents.
 
-**[Interactive browser demo](docs/index.html) · [Installation guide](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)**
+**[Run the demo locally](#try-it-without-installing-anything) · [Installation guide](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)**
 
 </div>
 
@@ -21,7 +21,7 @@ The goal is a transparent **human-in-the-loop** workflow, not indiscriminate mas
 
 ## Try it without installing anything
 
-Open [the interactive sample](docs/index.html) in a browser, or use the GitHub Pages URL after the repository owner enables Pages. It runs locally with synthetic examples, no Google account, API keys, n8n or server.
+The repository contains a **working HTML demo** at [`docs/index.html`](docs/index.html), but GitHub's file viewer only displays its source. To actually interact with the sample, open the downloaded HTML file locally or serve the `docs/` folder using the command below. It uses synthetic data and requires no Google account, API keys, or n8n. A public clickable demo URL requires enabling GitHub Pages for the `/docs` folder.
 
 ```bash
 python3 -m http.server 8000 --directory docs
