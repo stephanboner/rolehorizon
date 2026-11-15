@@ -451,6 +451,7 @@
     const isLive = typeof google !== 'undefined' && !!(google.script && google.script.run);
     const state = { jobs: [], query: '', rating: 'Alle', applied: 'all', active: null, loading: false, saving: false, bulkArchiving: false };
     const filters = ['Alle', 'Nicht bewertet', 'Top', 'Mittel', 'Too stretchy', 'langweilig', 'Falscher Ort', 'Prüfen'];
+    const ratingLabels = { 'Alle': 'All roles', 'Nicht bewertet': 'Unreviewed', 'Top': 'Top picks', 'Mittel': 'Medium fit', 'Too stretchy': 'Stretch roles', 'langweilig': 'Low interest', 'Falscher Ort': 'Wrong location', 'Prüfen': 'Needs review' };
     // Bei diesen Bewerbungsstatus verschwinden die Stellen aus der Standardansicht,
     // bleiben aber im Google Sheet und über den Statusfilter jederzeit erreichbar.
     const inactiveApplicationStatuses = ['Eingeladen', 'Abgelehnt', 'Archiviert'];
@@ -459,10 +460,70 @@
     // Die Vorschau läuft auch beim lokalen Öffnen der HTML-Datei.
     // Diese Beispiele werden NICHT in deine Tabelle geschrieben.
     const examples = [
-      { rowHint: 2, company: 'Bergwerk Digital', title: 'AI Solutions Consultant', about: 'Schweizer Technologieberatung für moderne Daten- und KI-Lösungen.', description: 'Kundenprobleme verstehen, AI-Anwendungen konzipieren und Pilotprojekte begleiten.', requirements: 'Technischer Hintergrund, Beratungserfahrung, Kommunikation und AI-Know-how.', rating: 'Top', applied: 'Nein', notes: 'Spannende Kombination aus Beratung und Technologie.', url: '', needsReview: false, revision: 'demo-2' },
-      { rowHint: 3, company: 'Limmat Tech', title: 'Senior Product Manager', about: 'Entwickelt Cloud-Produkte für Unternehmen.', description: 'Produktstrategie, Discovery, Priorisierung und Zusammenarbeit mit dem Engineering-Team.', requirements: 'Produktmanagement, Stakeholderführung, Erfahrung mit B2B-SaaS.', rating: 'Mittel', applied: 'In Vorbereitung', notes: '', url: '', needsReview: false, revision: 'demo-3' },
-      { rowHint: 4, company: 'Nordlicht Systems', title: 'Customer Success Lead', about: 'Anbieterin für cloudbasierte Business-Software.', description: 'Strategische Kunden betreuen und die Einführung neuer Lösungen begleiten.', requirements: 'Erfahrung mit Enterprise-Kunden und Transformation.', rating: 'Top', applied: 'Ja', notes: 'Bewerbung verschickt.', url: '', needsReview: false, revision: 'demo-4' },
-      { rowHint: 5, company: 'Musterunternehmen', title: '', about: '', description: '', requirements: '', rating: '', applied: '', notes: '⚠️ AUTOMATISCH PRUEFEN: Ausschreibung konnte nicht geladen werden', url: '', needsReview: true, revision: 'demo-5' }
+      {
+        rowHint: 2, company: 'Northstar Labs', title: 'Forward Deployed Engineer',
+        about: 'A fictional software company building AI-powered tools for enterprise teams.',
+        description: 'Design solutions with customers, implement integrations and deploy useful AI workflows.',
+        requirements: 'Python or TypeScript, software architecture, customer collaboration and rapid prototyping.',
+        rating: 'Top', applied: 'Nein', notes: 'Excellent mix of hands-on engineering and customer impact.',
+        url: '', needsReview: false, revision: 'demo-2'
+      },
+      {
+        rowHint: 3, company: 'Meridian Systems', title: 'AI Solutions Engineer',
+        about: 'A fictional B2B platform company helping teams adopt applied AI.',
+        description: 'Translate business requirements into AI-enabled prototypes and production integrations.',
+        requirements: 'APIs, cloud platforms, Python, solution design and technical communication.',
+        rating: 'Top', applied: 'In Vorbereitung', notes: 'Prepare a tailored application and review the technical challenges.',
+        url: '', needsReview: false, revision: 'demo-3'
+      },
+      {
+        rowHint: 4, company: 'Atlas Cloud', title: 'Solutions Architect',
+        about: 'A fictional cloud infrastructure provider for fast-growing companies.',
+        description: 'Help customers choose architectures and build reliable cloud integrations.',
+        requirements: 'Cloud architecture, security fundamentals and stakeholder communication.',
+        rating: 'Mittel', applied: 'Ja', notes: 'Application submitted; follow up on the first conversation.',
+        url: '', needsReview: false, revision: 'demo-4'
+      },
+      {
+        rowHint: 5, company: 'HorizonWorks', title: 'AI Product Manager',
+        about: 'A fictional SaaS company developing workflow automation products.',
+        description: 'Shape the product roadmap, validate user needs and partner with engineering.',
+        requirements: 'Product discovery, technical fluency and B2B software experience.',
+        rating: 'Mittel', applied: 'Nein', notes: 'Interesting product scope; compare against engineering-heavy roles.',
+        url: '', needsReview: false, revision: 'demo-5'
+      },
+      {
+        rowHint: 6, company: 'Keystone Robotics', title: 'Robotics Engineering Lead',
+        about: 'A fictional robotics startup building autonomous industrial systems.',
+        description: 'Coordinate robotics software development and technical delivery milestones.',
+        requirements: 'Advanced robotics, C++, systems engineering and team leadership.',
+        rating: 'Too stretchy', applied: 'Nein', notes: 'Strong technology fit, but specialised robotics background is a gap.',
+        url: '', needsReview: false, revision: 'demo-6'
+      },
+      {
+        rowHint: 7, company: 'Pinecone Analytics', title: 'Value Engineer',
+        about: 'A fictional enterprise analytics company.',
+        description: 'Connect process data to business outcomes and quantify transformation opportunities.',
+        requirements: 'Analytical thinking, Python, enterprise process knowledge and workshops.',
+        rating: '', applied: 'Nein', notes: 'Review customer engagement expectations.',
+        url: '', needsReview: false, revision: 'demo-7'
+      },
+      {
+        rowHint: 8, company: 'Aurora Systems', title: 'Customer Transformation Lead',
+        about: 'A fictional enterprise software vendor.',
+        description: 'Lead technology adoption programmes from discovery to measurable results.',
+        requirements: 'Consultative communication, integrations and change management.',
+        rating: '', applied: 'Nein', notes: 'Check how much coding is involved.',
+        url: '', needsReview: false, revision: 'demo-8'
+      },
+      {
+        rowHint: 9, company: 'Silverline Technologies', title: 'Data Platform Consultant',
+        about: 'A fictional data infrastructure company.',
+        description: 'Design data pipelines, advise enterprise clients and support implementation.',
+        requirements: 'SQL, APIs, Python and data architecture fundamentals.',
+        rating: '', applied: 'Nein', notes: 'Investigate role scope and customer project variety.',
+        url: '', needsReview: false, revision: 'demo-9'
+      }
     ];
 
     function el(tag, cls, text) {
@@ -472,7 +533,7 @@
       return node;
     }
     function norm(value) {
-      return String(value || '').toLocaleLowerCase('de-CH').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      return String(value || '').toLocaleLowerCase('en-US').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     }
     function validUrl(raw) {
       try {
@@ -506,7 +567,7 @@
       if (!isLive) {
         state.jobs = examples.map(j => ({ ...j }));
         $('demoNote').hidden = false;
-        $('lastFetched').textContent = 'Vorschau';
+        $('lastFetched').textContent = 'Sample dataset · 8 fictional roles';
         setLoading(false);
         render();
         return;
@@ -547,10 +608,10 @@
         // Firmen ohne Namen erst am Schluss anzeigen.
         if (!companyA) return companyB ? 1 : 0;
         if (!companyB) return -1;
-        const companyOrder = companyA.localeCompare(companyB, 'de-CH', { sensitivity: 'base', numeric: true });
+        const companyOrder = companyA.localeCompare(companyB, 'en-US', { sensitivity: 'base', numeric: true });
         if (companyOrder !== 0) return companyOrder;
         // Mehrere Stellen derselben Firma nach Jobtitel auflisten.
-        const titleOrder = String(a.title || '').localeCompare(String(b.title || ''), 'de-CH', { sensitivity: 'base', numeric: true });
+        const titleOrder = String(a.title || '').localeCompare(String(b.title || ''), 'en-US', { sensitivity: 'base', numeric: true });
         return titleOrder || (b.rowHint - a.rowHint);
       });
     }
@@ -559,13 +620,13 @@
       const activeJobs = jobs.filter(j => !isInactiveApplication(j));
       $('statAll').textContent = activeJobs.length;
       $('statTop').textContent = activeJobs.filter(j => j.rating === 'Top').length;
-      $('statOpen').textContent = activeJobs.filter(j => j.applied !== 'Ja').length;
-      $('statReview').textContent = activeJobs.filter(j => j.needsReview).length;
+      $('statOpen').textContent = activeJobs.filter(j => ['In Vorbereitung', 'Ja'].includes(j.applied)).length;
+      $('statReview').textContent = activeJobs.filter(j => j.needsReview || !String(j.rating || '').trim()).length;
 
       const tabs = $('ratingFilters');
       tabs.replaceChildren();
       filters.forEach(name => {
-        const b = el('button', 'chip' + (state.rating === name ? ' active' : ''), name);
+        const b = el('button', 'chip' + (state.rating === name ? ' active' : ''), ratingLabels[name] || name);
         b.type = 'button';
         b.setAttribute('aria-pressed', String(state.rating === name));
         b.addEventListener('click', () => { state.rating = name; render(); });
@@ -672,21 +733,21 @@
       btn.append(el('div', 'job-excerpt', job.description || (job.needsReview ? 'Die Stellenbeschreibung muss noch geprüft werden.' : job.about || 'Noch keine Zusammenfassung vorhanden.')));
       const bottom = el('div', 'job-bottom');
       const ratingClass = job.rating === 'Top' ? 'rating-top' : job.rating === 'Mittel' ? 'rating-mittel' : job.rating === 'Too stretchy' ? 'rating-stretchy' : job.rating === 'langweilig' ? 'rating-langweilig' : job.rating === 'Falscher Ort' ? 'rating-ort' : 'rating-blank';
-      bottom.append(el('span', 'pill ' + ratingClass, job.rating || 'Nicht bewertet'));
+      bottom.append(el('span', 'pill ' + ratingClass, ratingLabels[job.rating] || 'Unreviewed'));
       const appliedStyles = {
-        'Ja': ['applied-yes', 'Beworben'],
-        'In Vorbereitung': ['applied-prep', 'In Vorbereitung'],
-        'Später': ['applied-later', 'Später'],
-        'Eingeladen': ['applied-invited', 'Eingeladen'],
-        'Abgelehnt': ['applied-rejected', 'Abgelehnt'],
-        'Archiviert': ['applied-archived', 'Archiviert']
+        'Ja': ['applied-yes', 'Applied'],
+        'In Vorbereitung': ['applied-prep', 'Preparing'],
+        'Später': ['applied-later', 'For later'],
+        'Eingeladen': ['applied-invited', 'Interviewing'],
+        'Abgelehnt': ['applied-rejected', 'Rejected'],
+        'Archiviert': ['applied-archived', 'Archived']
       };
       const [appliedClass, appliedLabel] = appliedStyles[job.applied] || ['applied-no', 'Noch offen'];
       bottom.append(el('span', 'pill ' + appliedClass, appliedLabel));
       if (job.workflowStatus === 'Unterlagen erstellt') {
-        bottom.append(el('span', 'pill workflow-ready', 'Unterlagen erstellt'));
+        bottom.append(el('span', 'pill workflow-ready', 'Documents prepared'));
       }
-      if (job.needsReview) bottom.append(el('span', 'pill rating-review', 'Prüfen'));
+      if (job.needsReview) bottom.append(el('span', 'pill rating-review', 'Needs review'));
       btn.append(bottom);
       return btn;
     }
@@ -704,9 +765,9 @@
       $('editRating').value = ['Top', 'Mittel', 'Too stretchy', 'langweilig', 'Falscher Ort'].includes(job.rating) ? job.rating : '';
       $('editApplied').value = ['', 'Nein', 'In Vorbereitung', 'Später', 'Ja', ...inactiveApplicationStatuses].includes(job.applied) ? job.applied : '';
       $('editNotes').value = job.notes || '';
-      $('detailWorkflowStatus').textContent = job.workflowStatus || 'Noch nicht gestartet';
-      $('detailPreparedAt').textContent = job.preparedAt || 'Noch keine Unterlagen erstellt';
-      $('detailIcloudFolder').textContent = job.icloudFolder || 'Noch keine Ablage vorhanden';
+      $('detailWorkflowStatus').textContent = !isLive ? 'Not connected in demo' : job.workflowStatus || 'Not started';
+      $('detailPreparedAt').textContent = !isLive ? 'Not available in demo' : job.preparedAt || 'No documents prepared';
+      $('detailIcloudFolder').textContent = !isLive ? 'No connected storage' : job.icloudFolder || 'No folder available';
       setDetail('detailAbout', job.about);
       setDetail('detailDescription', job.description);
       setDetail('detailRequirements', job.requirements);
