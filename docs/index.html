@@ -452,13 +452,11 @@
     const state = { jobs: [], query: '', rating: 'Alle', applied: 'all', active: null, loading: false, saving: false, bulkArchiving: false };
     const filters = ['Alle', 'Nicht bewertet', 'Top', 'Mittel', 'Too stretchy', 'langweilig', 'Falscher Ort', 'Prüfen'];
     const ratingLabels = { 'Alle': 'All roles', 'Nicht bewertet': 'Unreviewed', 'Top': 'Top picks', 'Mittel': 'Medium fit', 'Too stretchy': 'Stretch roles', 'langweilig': 'Low interest', 'Falscher Ort': 'Wrong location', 'Prüfen': 'Needs review' };
-    // Bei diesen Bewerbungsstatus verschwinden die Stellen aus der Standardansicht,
-    // bleiben aber im Google Sheet und über den Statusfilter jederzeit erreichbar.
+    // Closed application statuses are excluded from the default list but remain available under the status filter.
     const inactiveApplicationStatuses = ['Eingeladen', 'Abgelehnt', 'Archiviert'];
     const isInactiveApplication = job => inactiveApplicationStatuses.includes(String(job.applied || '').trim());
 
-    // Die Vorschau läuft auch beim lokalen Öffnen der HTML-Datei.
-    // Diese Beispiele werden NICHT in deine Tabelle geschrieben.
+    // This standalone demo uses fictional records. No data is sent to Google Sheets.
     const examples = [
       {
         rowHint: 2, company: 'Northstar Labs', title: 'Forward Deployed Engineer',
@@ -550,7 +548,7 @@
       toast.timer = setTimeout(() => { node.hidden = true; }, error ? 6500 : 3200);
     }
     function fail(err) {
-      const msg = err && err.message ? err.message : String(err || 'Unbekannter Fehler');
+      const msg = err && err.message ? err.message : String(err || 'Unknown error');
       toast(msg, true);
       return msg;
     }
@@ -576,15 +574,15 @@
         .withSuccessHandler(result => {
           state.jobs = Array.isArray(result.jobs) ? result.jobs : [];
           const t = new Date(result.fetchedAt || Date.now());
-          $('lastFetched').textContent = 'Aktualisiert ' + t.toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' });
+          $('lastFetched').textContent = 'Updated ' + t.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
           setLoading(false);
           render();
         })
         .withFailureHandler(err => {
           const msg = fail(err);
-          $('errorNote').textContent = 'Stellen konnten nicht geladen werden: ' + msg;
+          $('errorNote').textContent = 'Could not load opportunities: ' + msg;
           $('errorNote').hidden = false;
-          $('lastFetched').textContent = 'Fehler beim Laden';
+          $('lastFetched').textContent = 'Loading failed';
           setLoading(false);
           render();
         })
@@ -605,12 +603,12 @@
       }).sort((a, b) => {
         const companyA = String(a.company || '').trim();
         const companyB = String(b.company || '').trim();
-        // Firmen ohne Namen erst am Schluss anzeigen.
+        // Keep companies without a valid name at the bottom.
         if (!companyA) return companyB ? 1 : 0;
         if (!companyB) return -1;
         const companyOrder = companyA.localeCompare(companyB, 'en-US', { sensitivity: 'base', numeric: true });
         if (companyOrder !== 0) return companyOrder;
-        // Mehrere Stellen derselben Firma nach Jobtitel auflisten.
+        // Sort multiple roles at the same company by job title.
         const titleOrder = String(a.title || '').localeCompare(String(b.title || ''), 'en-US', { sensitivity: 'base', numeric: true });
         return titleOrder || (b.rowHint - a.rowHint);
       });
@@ -635,12 +633,12 @@
 
       const visible = filteredJobs();
       const hiddenCount = jobs.length - activeJobs.length;
-      $('resultsLine').textContent = visible.length + ' Stellen angezeigt' +
-        (state.applied === 'all' && hiddenCount ? ' · ' + hiddenCount + ' ausgeblendet' : '') +
-        ' · Firmen A–Z';
+      $('resultsLine').textContent = visible.length + ' opportunities shown' +
+        (state.applied === 'all' && hiddenCount ? ' · ' + hiddenCount + ' hidden' : '') +
+        ' · Companies A–Z';
       const archivableCount = visible.filter(job => job.applied !== 'Archiviert').length;
       $('bulkArchiveLabel').textContent = state.bulkArchiving
-        ? 'Archivieren …' : 'Angezeigte archivieren (' + archivableCount + ')';
+        ? 'Archiving…' : 'Archive displayed (' + archivableCount + ')';
       $('bulkArchive').disabled = !archivableCount || state.loading || state.saving || state.bulkArchiving || !!state.active;
       const grid = $('jobGrid');
       grid.replaceChildren();
@@ -648,8 +646,8 @@
         const box = el('div', 'empty');
         box.style.gridColumn = '1 / -1';
         box.append(el('div', 'empty-icon', '⌕'));
-        box.append(el('strong', '', jobs.length ? 'Keine passenden Stellen' : 'Noch keine Stellen erfasst'));
-        box.append(el('div', '', jobs.length ? 'Versuche andere Suchbegriffe oder Filter.' : 'Erfasse zuerst einen Link über deinen n8n-Workflow.'));
+        box.append(el('strong', '', jobs.length ? 'No matching opportunities' : 'No opportunities yet'));
+        box.append(el('div', '', jobs.length ? 'Try different keywords or filters.' : 'Add opportunities through a configured workflow, or reset the example data.'));
         grid.append(box);
         return;
       }
@@ -657,11 +655,11 @@
     }
     function archiveVisibleJobs() {
       if (state.loading || state.saving || state.bulkArchiving || state.active) return;
-      // Exakt die gegenwärtig gefilterten Treffer archivieren – keine versteckten Stellen.
+      // Archive only the opportunities currently visible after search and filtering.
       const targets = filteredJobs().filter(job => job.applied !== 'Archiviert');
       if (!targets.length) return;
       if (targets.length > 500) {
-        toast('Maximal 500 Stellen pro Archivierung. Bitte die Filter eingrenzen.', true);
+        toast('A maximum of 500 roles can be archived at once. Narrow your filters.', true);
         return;
       }
 
@@ -669,12 +667,10 @@
         ['Ja', 'In Vorbereitung', 'Eingeladen'].includes(job.applied)
       ).length;
       const message =
-        'Diese ' + targets.length + ' aktuell angezeigten Stellen archivieren?\n\n' +
-        'Alle ausgewählten Stellen erhalten den Bewerbungsstatus «Archiviert» und ' +
-        'verschwinden aus der normalen Übersicht. Im Google Sheet bleiben sie erhalten.' +
-        (ongoing ? '\n\nAchtung: Darunter sind ' + ongoing +
-          ' Stellen mit einer Bewerbung, Vorbereitung oder Einladung.' : '') +
-        '\n\nDie Auswahl richtet sich nach den aktuell gesetzten Such- und Filtern.';
+        'Archive ' + targets.length + ' currently displayed opportunities?\n\n' +
+        'They will disappear from the default list and be marked as archived.' +
+        (ongoing ? '\n\nNote: ' + ongoing + ' of these roles already have applications in progress.' : '') +
+        '\n\nOnly the opportunities shown by your current filters are affected. Demo changes reset when you reload.';
       if (!window.confirm(message)) return;
 
       const patches = targets.map(job => ({
@@ -696,13 +692,13 @@
       function success(result) {
         done();
         if (!result || Number(result.archived) !== targets.length) {
-          toast('Archivierung nicht eindeutig bestätigt. Bitte die Liste aktualisieren.', true);
+          toast('Could not confirm the archive operation. Please refresh the list.', true);
           if (isLive) loadJobs();
           return;
         }
         targets.forEach(job => { job.applied = 'Archiviert'; });
         render();
-        toast(targets.length + ' Stellen archiviert.');
+        toast(targets.length + ' roles archived.');
         if (isLive) loadJobs();
       }
       if (!isLive) {
@@ -723,14 +719,14 @@
     function makeCard(job) {
       const btn = el('button', 'job-card');
       btn.type = 'button';
-      btn.setAttribute('aria-label', 'Stelle öffnen: ' + (job.title || 'Unbekannte Stelle') + ', ' + (job.company || 'Firma unbekannt'));
+      btn.setAttribute('aria-label', 'Open opportunity: ' + (job.title || 'Unknown role') + ', ' + (job.company || 'Unknown company'));
       btn.addEventListener('click', () => openDetail(job));
       const top = el('div', 'job-top');
-      top.append(el('span', 'company', job.company || 'Firma unbekannt'));
+      top.append(el('span', 'company', job.company || 'Unknown company'));
       top.append(el('span', 'job-arrow', '↗'));
       btn.append(top);
-      btn.append(el('div', 'job-title', job.title || 'Stelle prüfen'));
-      btn.append(el('div', 'job-excerpt', job.description || (job.needsReview ? 'Die Stellenbeschreibung muss noch geprüft werden.' : job.about || 'Noch keine Zusammenfassung vorhanden.')));
+      btn.append(el('div', 'job-title', job.title || 'Review role'));
+      btn.append(el('div', 'job-excerpt', job.description || (job.needsReview ? 'This role description needs review.' : job.about || 'No description available yet.')));
       const bottom = el('div', 'job-bottom');
       const ratingClass = job.rating === 'Top' ? 'rating-top' : job.rating === 'Mittel' ? 'rating-mittel' : job.rating === 'Too stretchy' ? 'rating-stretchy' : job.rating === 'langweilig' ? 'rating-langweilig' : job.rating === 'Falscher Ort' ? 'rating-ort' : 'rating-blank';
       bottom.append(el('span', 'pill ' + ratingClass, ratingLabels[job.rating] || 'Unreviewed'));
@@ -742,7 +738,7 @@
         'Abgelehnt': ['applied-rejected', 'Rejected'],
         'Archiviert': ['applied-archived', 'Archived']
       };
-      const [appliedClass, appliedLabel] = appliedStyles[job.applied] || ['applied-no', 'Noch offen'];
+      const [appliedClass, appliedLabel] = appliedStyles[job.applied] || ['applied-no', 'Not applied'];
       bottom.append(el('span', 'pill ' + appliedClass, appliedLabel));
       if (job.workflowStatus === 'Unterlagen erstellt') {
         bottom.append(el('span', 'pill workflow-ready', 'Documents prepared'));
@@ -754,14 +750,14 @@
 
     function setDetail(id, value) {
       const node = $(id);
-      node.textContent = value || 'Noch keine Angaben vorhanden.';
+      node.textContent = value || 'No details available.';
       node.classList.toggle('detail-empty', !value);
     }
     function openDetail(job) {
       if (state.bulkArchiving) return;
       state.active = job;
-      $('drawerCompany').textContent = job.company || 'Firma unbekannt';
-      $('drawerTitle').textContent = job.title || 'Stelle prüfen';
+      $('drawerCompany').textContent = job.company || 'Unknown company';
+      $('drawerTitle').textContent = job.title || 'Review role';
       $('editRating').value = ['Top', 'Mittel', 'Too stretchy', 'langweilig', 'Falscher Ort'].includes(job.rating) ? job.rating : '';
       $('editApplied').value = ['', 'Nein', 'In Vorbereitung', 'Später', 'Ja', ...inactiveApplicationStatuses].includes(job.applied) ? job.applied : '';
       $('editNotes').value = job.notes || '';
@@ -776,7 +772,7 @@
       if (link) $('detailLink').href = link;
       else $('detailLink').removeAttribute('href');
       $('prepareApplicationButton').disabled = !link || !link.startsWith('https://');
-      $('prepareApplicationButton').title = link ? 'Bewerbungsunterlagen aus Originalinserat erstellen lassen' : 'Original-Stellenlink fehlt';
+      $('prepareApplicationButton').title = link ? 'Prepare application drafts from the original posting' : 'Original posting URL not available in this demo';
       $('overlay').hidden = false;
       document.body.style.overflow = 'hidden';
       $('close').focus();
@@ -803,15 +799,15 @@
       $('save').disabled = true;
       $('deleteJobButton').disabled = true;
       $('prepareApplicationButton').disabled = true;
-      $('save').textContent = 'Speichern …';
-      function done() { state.saving = false; $('save').disabled = false; $('deleteJobButton').disabled = false; $('prepareApplicationButton').disabled = !validUrl(state.active?.url).startsWith('https://'); $('save').textContent = 'Änderungen speichern'; }
+      $('save').textContent = 'Saving…';
+      function done() { state.saving = false; $('save').disabled = false; $('deleteJobButton').disabled = false; $('prepareApplicationButton').disabled = !validUrl(state.active?.url).startsWith('https://'); $('save').textContent = 'Save changes'; }
       function success(updated) {
         const idx = state.jobs.findIndex(j => j.url ? j.url === patch.url : j.rowHint === patch.rowHint);
         if (idx >= 0) state.jobs[idx] = updated;
         done();
         closeDetail();
         render();
-        toast(isLive ? 'In Google Sheets gespeichert' : 'Im Vorschau-Modus geändert (nicht gespeichert)');
+        toast(isLive ? 'Saved to Google Sheets' : 'Updated for this demo session (not saved permanently)');
       }
       if (!isLive) {
         success({ ...state.active, ...patch, revision: 'demo-updated', needsReview: /^\s*⚠/.test(patch.notes) || !patch.title });
@@ -827,27 +823,26 @@
       if (!state.active || state.saving || state.bulkArchiving) return;
       const job = state.active;
       const link = validUrl(job.url);
-      if (!link || !link.startsWith('https://')) { toast('Ein HTTPS-Original-Stellenlink ist erforderlich.', true); return; }
+      if (!link || !link.startsWith('https://')) { toast('An original HTTPS posting URL is required.', true); return; }
 
-      // Die n8n-Aktion verwendet die bereits gespeicherten Hinweise im Sheet.
-      // Noch nicht gespeicherte Formulareingaben nicht unbemerkt verwerfen.
+      // The n8n workflow reads previously saved notes. Do not silently discard unsaved edits.
       if ($('editNotes').value !== String(job.notes || '') ||
           $('editRating').value !== String(job.rating || '') ||
           $('editApplied').value !== String(job.applied || '')) {
-        toast('Bitte zuerst deine Aenderungen speichern.', true);
+        toast('Please save your changes first.', true);
         return;
       }
-      const message = 'Bewerbung vorbereiten fuer ' + (job.company || 'Firma') +
-        ' – ' + (job.title || 'Stelle') + '?\n\n' +
-        'n8n laedt die vollstaendige Originalanzeige und speichert die Unterlagen in iCloud.';
+      const message = 'Prepare application documents for ' + (job.company || 'the company') +
+        ' — ' + (job.title || 'this role') + '?\n\n' +
+        'The private workflow would retrieve the original posting and save draft documents to private storage.';
       if (!window.confirm(message)) return;
-      if (!isLive) { toast('Vorschau-Modus: kein Workflow gestartet.'); return; }
+      if (!isLive) { toast('Demo mode: no external workflow was started.'); return; }
 
       state.saving = true;
       $('prepareApplicationButton').disabled = true;
       $('save').disabled = true;
       $('deleteJobButton').disabled = true;
-      $('prepareApplicationButton').textContent = 'Wird gestartet …';
+      $('prepareApplicationButton').textContent = 'Starting…';
       const patch = {
         rowHint: job.rowHint,
         company: job.company,
@@ -860,13 +855,13 @@
         $('prepareApplicationButton').disabled = !validUrl(job.url).startsWith('https://');
         $('save').disabled = false;
         $('deleteJobButton').disabled = false;
-        $('prepareApplicationButton').textContent = 'Bewerbung vorbereiten';
+        $('prepareApplicationButton').textContent = 'Prepare documents';
       }
       google.script.run
         .withSuccessHandler(result => {
           if (!result || result.accepted !== true || !result.job) {
             done();
-            toast('Keine Bestaetigung von n8n erhalten.', true);
+            toast('The workflow did not confirm the request.', true);
             return;
           }
           const idx = state.jobs.findIndex(j => j.url === job.url);
@@ -874,7 +869,7 @@
           done();
           closeDetail();
           render();
-          toast('Bewerbung angefordert. Status: In Vorbereitung.');
+          toast('Draft preparation requested. Status: Preparing.');
         })
         .withFailureHandler(err => { done(); fail(err); })
         .startApplicationFromApp(patch);
@@ -884,12 +879,10 @@
       if (!state.active || state.saving || state.bulkArchiving) return;
       const job = state.active;
       const confirmation =
-        'Diese Stelle endgültig löschen?\n\n' +
-        (job.title || 'Unbekannte Stelle') + '\n' +
-        (job.company || 'Firma unbekannt') + '\n\n' +
-        'Die gesamte Zeile wird aus Google Sheets entfernt. ' +
-        'Das kann in RoleHorizon nicht rückgängig gemacht werden.\n\n' +
-        'Hinweis: Der automatische Firmen-Scanner könnte die Stelle beim nächsten Scan erneut hinzufügen.';
+        'Remove this opportunity from the demo?\n\n' +
+        (job.title || 'Unknown role') + '\n' +
+        (job.company || 'Unknown company') + '\n\n' +
+        'The opportunity will disappear for this session. Use Reset demo to restore the original sample data.';
       if (!window.confirm(confirmation)) return;
 
       const patch = {
@@ -903,22 +896,22 @@
       $('deleteJobButton').disabled = true;
       $('save').disabled = true;
       $('prepareApplicationButton').disabled = true;
-      $('deleteJobButton').textContent = 'Löschen …';
+      $('deleteJobButton').textContent = 'Deleting…';
 
       function done() {
         state.saving = false;
         $('deleteJobButton').disabled = false;
         $('save').disabled = false;
         $('prepareApplicationButton').disabled = !validUrl(job.url).startsWith('https://');
-        $('deleteJobButton').textContent = 'Löschen';
+        $('deleteJobButton').textContent = 'Delete';
       }
       function success() {
         state.jobs = state.jobs.filter(item => item !== job);
         done();
         closeDetail();
         render();
-        toast(isLive ? 'Stelle aus Google Sheets gelöscht' : 'Nur in der Vorschau entfernt');
-        // Nach dem Löschen verschieben sich die Zeilenindizes im Google Sheet.
+        toast(isLive ? 'Opportunity removed from Google Sheets' : 'Opportunity removed from this demo session');
+        // Deleting a row changes subsequent row indexes in Google Sheets.
         if (isLive) loadJobs();
       }
       if (!isLive) {
@@ -943,7 +936,7 @@
       sourceState.proposal = null;
       sourceState.busy = false;
       $('sourceSearch').disabled = false;
-      $('sourceSearch').textContent = 'Karriereseite finden';
+      $('sourceSearch').textContent = 'Find careers page';
       $('sourceSave').disabled = false;
       $('sourceOverlay').hidden = false;
       document.body.style.overflow = 'hidden';
@@ -983,18 +976,18 @@
     function researchCompanyNow() {
       if (sourceState.busy) return;
       const input = $('sourceInput').value.trim();
-      if (input.length < 12) { showSourceMessage('Bitte einen Stellenlink oder eine aussagekräftige Stellenbeschreibung eingeben.', true); return; }
-      if (!isLive) { showSourceMessage('Die Quellenrecherche funktioniert nur in der veröffentlichten App.', true); return; }
+      if (input.length < 12) { showSourceMessage('Enter a job posting URL or a meaningful role description.', true); return; }
+      if (!isLive) { showSourceMessage('Company-source research requires a connected private deployment.', true); return; }
       sourceState.busy = true;
       sourceState.proposal = null;
       $('sourceResult').hidden = true;
       $('sourceSearch').disabled = true;
-      $('sourceSearch').textContent = 'Recherchiert …';
-      showSourceMessage('Die Karriereseite wird im Web gesucht. Das kann einen Moment dauern.');
+      $('sourceSearch').textContent = 'Searching…';
+      showSourceMessage('Searching for the official careers page. This may take a moment.');
       function done() {
         sourceState.busy = false;
         $('sourceSearch').disabled = false;
-        $('sourceSearch').textContent = 'Karriereseite finden';
+        $('sourceSearch').textContent = 'Find careers page';
       }
       google.script.run
         .withSuccessHandler(result => {
@@ -1004,16 +997,16 @@
           $('sourceCareerUrl').value = String(result?.careersUrl || '');
           $('sourceType').value = String(result?.type || 'Auto');
           $('sourceActive').value = result?.active === 'Ja' ? 'Ja' : 'Nein';
-          $('sourceReason').textContent = String(result?.reason || 'Bitte die Quelle prüfen.');
+          $('sourceReason').textContent = String(result?.reason || 'Please review this source.');
           $('sourceEvidence').hidden = !validUrl(result?.evidenceUrl);
           if (!$('sourceEvidence').hidden) $('sourceEvidence').href = validUrl(result.evidenceUrl);
           const duplicate = result?.duplicate;
           $('sourceDuplicate').hidden = !duplicate;
           if (duplicate) {
-            $('sourceDuplicate').textContent = 'Bereits vorhanden: ' + duplicate.company + ' (Zeile ' + duplicate.row + ', Übereinstimmung: ' + duplicate.match + ').';
+            $('sourceDuplicate').textContent = 'Already added: ' + duplicate.company + ' (row ' + duplicate.row + ', matching: ' + duplicate.match + ').';
           }
-          const confidence = ({high:'hoch',medium:'mittel',low:'gering'})[result?.confidence] || 'unbekannt';
-          showSourceMessage(result?.careersUrl ? 'Vorschlag gefunden (Sicherheit: ' + confidence + '). Bitte prüfen und anschliessend speichern.' : 'Keine eindeutige Karriereseite gefunden. Du kannst Firma und URL nach manueller Prüfung selbst eintragen.', !result?.careersUrl);
+          const confidence = ({high:'high',medium:'medium',low:'low'})[result?.confidence] || 'unknown';
+          showSourceMessage(result?.careersUrl ? 'Suggested careers page found (confidence: ' + confidence + '). Review the URL before saving.' : 'No clear official careers page found. You can manually enter the company and URL after verification.', !result?.careersUrl);
           $('sourceResult').hidden = false;
           refreshSourceSaveState();
         })
@@ -1024,12 +1017,12 @@
           $('sourceCareerUrl').value = '';
           $('sourceType').value = 'Auto';
           $('sourceActive').value = 'Nein';
-          $('sourceReason').textContent = 'Recherche fehlgeschlagen. Du kannst die Firmenquelle auch nach eigener Kontrolle manuell eintragen.';
+          $('sourceReason').textContent = 'Research failed. You can still enter a verified company source manually.';
           $('sourceDuplicate').hidden = true;
           $('sourceEvidence').hidden = true;
           $('sourceResult').hidden = false;
           refreshSourceSaveState();
-          showSourceMessage(err?.message || 'Die Suche ist fehlgeschlagen. Bitte die Quelle manuell kontrollieren.', true);
+          showSourceMessage(err?.message || 'The search failed. Please verify the source manually.', true);
         })
         .researchCompanySource({input});
     }
@@ -1043,31 +1036,31 @@
         active: $('sourceActive').value
       };
       if (!request.company || !validUrl(request.careersUrl).startsWith('https://')) {
-        showSourceMessage('Bitte Firma und eine gültige HTTPS-Karriereseite eingeben.', true);
+        showSourceMessage('Enter a company name and a valid HTTPS careers page URL.', true);
         return;
       }
       if (['Workable','Recruitee'].includes(request.type) && request.active === 'Ja') {
-        showSourceMessage('Dieser Quellentyp wird derzeit nicht zuverlässig gescannt. Bitte vorerst inaktiv speichern.', true);
+        showSourceMessage('This source type is not scanned reliably yet. Save it as inactive for now.', true);
         return;
       }
-      if (!isLive) { showSourceMessage('Im Vorschau-Modus wird nichts gespeichert.', true); return; }
+      if (!isLive) { showSourceMessage('Demo mode: no company source will be saved.', true); return; }
       sourceState.busy = true;
       $('sourceSave').disabled = true;
       $('sourceSearch').disabled = true;
-      $('sourceSave').textContent = 'Speichern …';
+      $('sourceSave').textContent = 'Saving…';
       google.script.run
         .withSuccessHandler(result => {
           sourceState.busy = false;
-          $('sourceSave').textContent = 'Firma speichern';
+          $('sourceSave').textContent = 'Save company';
           closeCompanySource();
-          toast('Firmenquelle ' + result.company + ' gespeichert (Zeile ' + result.row + ', Aktiv: ' + result.active + ').');
+          toast('Saved company source ' + result.company + ' (row ' + result.row + ', active flag: ' + result.active + ').');
         })
         .withFailureHandler(err => {
           sourceState.busy = false;
-          $('sourceSave').textContent = 'Firma speichern';
+          $('sourceSave').textContent = 'Save company';
           $('sourceSearch').disabled = false;
           refreshSourceSaveState();
-          showSourceMessage(err?.message || 'Speichern fehlgeschlagen.', true);
+          showSourceMessage(err?.message || 'Saving failed.', true);
         })
         .saveCompanySource(request);
     }
