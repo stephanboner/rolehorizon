@@ -31,8 +31,8 @@ function doGet() {
 }
 
 function sheet_() {
-  const ss = SpreadsheetApp.openById(ROLEHORIZON_CONFIG.spreadsheetId);
   if (!ROLEHORIZON_CONFIG.spreadsheetId) throw new Error('Configure ROLEHORIZON_SHEET_ID in Script Properties.');
+  const ss = SpreadsheetApp.openById(ROLEHORIZON_CONFIG.spreadsheetId);
   const sheet = ss.getSheetByName(ROLEHORIZON_CONFIG.sheetName);
   if (!sheet) throw new Error('Tab "Stellen" nicht gefunden.');
   const headers = sheet.getRange(1, 1, 1, 9).getDisplayValues()[0];
