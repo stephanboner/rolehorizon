@@ -18,7 +18,9 @@
         "path": "rolehorizon-company-source-research",
         "authentication": "headerAuth",
         "responseMode": "responseNode"
-      }
+      },
+      "id": "10000000-0000-4000-8001-000000000001",
+      "webhookId": "20000000-0000-4000-8001-000000000001"
     },
     {
       "name": "Eingabe pruefen",
@@ -32,7 +34,8 @@
         "mode": "runOnceForAllItems",
         "language": "javaScript",
         "jsCode": "const req=$input.first().json||{};\nconst body=req.body&&typeof req.body==='object'?req.body:{};\nconst input=String(body.input||'').trim();\nif(input.length<12)throw new Error('Bitte einen Stellenlink oder eine aussagekraeftige Stellenbeschreibung einfuegen.');\nif(input.length>18000)throw new Error('Eingabe zu lang (maximal 18 000 Zeichen).');\nreturn [{json:{input}}];"
-      }
+      },
+      "id": "10000000-0000-4000-8001-000000000002"
     },
     {
       "name": "Karriereseite mit Websuche recherchieren",
@@ -86,7 +89,8 @@
             }
           }
         }
-      }
+      },
+      "id": "10000000-0000-4000-8001-000000000003"
     },
     {
       "name": "URL normalisieren und Vorschlag pruefen",
@@ -100,7 +104,8 @@
         "mode": "runOnceForAllItems",
         "language": "javaScript",
         "jsCode": "const input=String($('Eingabe pruefen').first().json.input||'');\nconst model=$input.first().json||{};\nlet extracted={};\ntry {\n  let raw='';\n  if(typeof model.output_text==='string')raw=model.output_text;\n  if(!raw&&Array.isArray(model.output)) {\n    const messages=model.output.filter(x=>x&&x.type==='message');\n    for(const m of messages)for(const c of (m.content||[]))if(typeof c.text==='string'){raw=c.text;break;}\n  }\n  if(!raw&&typeof model.text==='string')raw=model.text;\n  if(!raw&&typeof model.content==='string')raw=model.content;\n  if(!raw&&typeof model.message?.content==='string')raw=model.message.content;\n  if(!raw&&Array.isArray(model.output)) {\n    for(const m of model.output)for(const c of (m.content||[])) {\n      if(c&&c.type==='output_text'&&c.text&&typeof c.text==='object') {extracted=c.text;break;}\n    }\n  }\n  if(raw) {\n    raw=raw.replace(/^\\s*\\x60{3}(?:json)?\\s*/i,'').replace(/\\s*\\x60{3}\\s*$/,'').trim();\n    extracted=JSON.parse(raw);\n  }\n} catch(e) { extracted={company:'',careers_url:'',type:'Auto',confidence:'low',reason:'KI-Ergebnis konnte nicht sicher ausgewertet werden. Bitte manuell pruefen.',source_url:''}; }\nfunction clean(v,max){return String(v??'').trim().slice(0,max);}\nfunction normalize(link){\n  const m=clean(link,2000).match(/^https:\\/\\/([a-z0-9][a-z0-9.-]*)(\\/[^\\s?#]*)?/i);\n  if(!m)return null;\n  const host=m[1].toLowerCase(),path=m[2]||'/',seg=path.split('/').filter(Boolean);\n  if(host==='localhost'||host.endsWith('.local')||host.endsWith('.internal')||host.endsWith('.test')||/^\\d+\\.\\d+\\.\\d+\\.\\d+$/.test(host)||host.indexOf('..')>=0)return null;\n  const esc=s=>/^[a-z0-9_-]+$/i.test(s||'')?s:'';\n  if(host==='jobs.ashbyhq.com'&&esc(seg[0]))return {url:'https://jobs.ashbyhq.com/'+seg[0],type:'Ashby',hint:seg[0]};\n  if(host==='jobs.lever.co'&&esc(seg[0]))return {url:'https://jobs.lever.co/'+seg[0],type:'Lever',hint:seg[0]};\n  if(host==='jobs.eu.lever.co'&&esc(seg[0]))return {url:'https://jobs.eu.lever.co/'+seg[0],type:'Lever EU',hint:seg[0]};\n  if((host==='job-boards.greenhouse.io'||host==='boards.greenhouse.io')&&esc(seg[0]))return {url:'https://job-boards.greenhouse.io/'+seg[0],type:'Greenhouse',hint:seg[0]};\n  if(host==='apply.workable.com'&&esc(seg[0]))return {url:'https://apply.workable.com/'+seg[0]+'/',type:'Workable',hint:seg[0]};\n  if(/^[a-z0-9-]+\\.recruitee\\.com$/.test(host))return {url:'https://'+host+'/',type:'Recruitee',hint:host.split('.')[0]};\n  return {url:'https://'+host+path,type:'HTML',hint:''};\n}\nconst fromInput=input.match(/https:\\/\\/[^\\s\"'<>()[\\]]+/i);\nconst direct=fromInput?normalize(fromInput[0]):null;\nconst canonicalDirect=direct&&direct.type!=='HTML'?direct:null;\nconst fromAI=normalize(extracted.careers_url);\nconst final=canonicalDirect||fromAI;\nconst types=['Auto','Greenhouse','Lever','Lever EU','Ashby','HTML','Workable','Recruitee'];\nconst type=final?final.type:'Auto';\nlet company=clean(extracted.company,140);\nif(!company&&canonicalDirect){company=canonicalDirect.hint.replace(/[-_]+/g,' ').replace(/\\b[a-z]/g,c=>c.toUpperCase());}\nconst conf=canonicalDirect?'high':(['high','medium','low'].includes(extracted.confidence)?extracted.confidence:'low');\nconst reason=clean(extracted.reason,700)||(canonicalDirect?'Quellen-URL direkt aus bekanntem Bewerbungslink abgeleitet. Firmenname bitte kontrollieren.':'Keine zweifelsfrei bestaetigte Karriereseite gefunden. Bitte manuell pruefen.');\nconst sourceUrl=normalize(extracted.source_url)?.url||'';\nreturn [{json:{\n  company,\n  careers_url:final?final.url:'',\n  type:types.includes(type)?type:'Auto',\n  confidence:conf,\n  reason,\n  evidence_url:sourceUrl,\n  active_suggestion:!!canonicalDirect&&['Ashby','Greenhouse','Lever','Lever EU'].includes(type)?'Ja':'Nein',\n  needs_review:true\n}}];"
-      }
+      },
+      "id": "10000000-0000-4000-8001-000000000004"
     },
     {
       "name": "Vorschlag an App senden",
@@ -112,7 +117,8 @@
       ],
       "parameters": {
         "respondWith": "firstIncomingItem"
-      }
+      },
+      "id": "10000000-0000-4000-8001-000000000005"
     }
   ],
   "connections": {
