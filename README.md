@@ -1,11 +1,15 @@
 <div align="center">
 
+<a href="#try-the-interactive-demo">
+  <img src="docs/assets/rolehorizon-preview.png" alt="RoleHorizon interactive app preview — click to see how to try the demo" width="1100" />
+</a>
+
 # RoleHorizon
 **Find the signal in the job-market noise.**
 
 A personal job intelligence platform: discover roles across career pages, extract structured information, manage a shortlist, and optionally prepare application documents.
 
-**[Run the demo locally](#try-it-without-installing-anything) · [Installation guide](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)**
+**[Try the interactive demo](#try-the-interactive-demo) · [Installation guide](docs/SETUP.md) · [Architecture](docs/ARCHITECTURE.md) · [Security](SECURITY.md)**
 
 </div>
 
@@ -19,14 +23,18 @@ A personal job intelligence platform: discover roles across career pages, extrac
 
 The goal is a transparent **human-in-the-loop** workflow, not indiscriminate mass applications.
 
-## Try it without installing anything
+## Try the interactive demo
 
-The repository contains a **working HTML demo** at [`docs/index.html`](docs/index.html), but GitHub's file viewer only displays its source. To actually interact with the sample, open the downloaded HTML file locally or serve the `docs/` folder using the command below. It uses synthetic data and requires no Google account, API keys, or n8n. A public clickable demo URL requires enabling GitHub Pages for the `/docs` folder.
+The demo is a **working frontend, not a screenshot**: you can search fictional roles, filter the shortlist and edit ratings or notes. It runs entirely in the browser with **synthetic data**—no Google Sheet, n8n instance, API key or login is required. Changes are temporary and reset when you reload. Job ingestion, scheduled scans and application-document generation require the separately configured backend.
+
+The source lives at [`docs/index.html`](docs/index.html). GitHub's code viewer shows HTML source rather than running it; to interact with it today, open the downloaded file in a browser or serve the `docs/` folder locally:
 
 ```bash
 python3 -m http.server 8000 --directory docs
 # http://localhost:8000
 ```
+
+When the repository owner enables **GitHub Pages → Deploy from a branch → main → /docs**, the same frontend will also be accessible through the public demo URL. Until then, the header image links here instead of sending visitors to an unavailable site.
 
 ## Repository contents
 
