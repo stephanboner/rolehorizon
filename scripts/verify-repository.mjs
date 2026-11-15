@@ -63,6 +63,42 @@ for (const [filename,count] of expectations) {
     }
   }
 }
+// Verify the public standalone demo independently of the private Apps Script UI.
+const demoHtml = read('docs/index.html');
+assert.match(demoHtml, /<html lang="en">/);
+for (const label of [
+  'INTERACTIVE SHOWCASE', 'SYNTHETIC DATA',
+  'Find the signal', 'Your opportunities', 'Search company, role, or description',
+  'All application statuses', 'Opportunities tracked', 'Top picks',
+  'Awaiting review', 'In progress', 'Save changes', 'Reset demo',
+  'Northstar Labs', 'Meridian Systems', 'Forward Deployed Engineer',
+]) {
+  assert.ok(demoHtml.includes(label), 'Missing English demo label: ' + label);
+}
+for (const stale of [
+  'Deine Stellen', 'Alle Chancen.', 'Ein Überblick.', 'Stelle erfassen',
+  'Änderungen speichern', 'Bewerbungen im Blick', 'Vorschau-Modus',
+]) {
+  assert.ok(!demoHtml.includes(stale), 'Untranslated public demo string: ' + stale);
+}
+const demoScripts = [...demoHtml.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)];
+assert.ok(demoScripts.length > 0, 'Public demo has no inline script');
+for (const [i, script] of demoScripts.entries()) {
+  new vm.Script(script[1], {filename:'docs/index.html <script> ' + i});
+}
+assert.equal((demoHtml.match(/revision: 'demo-\d+'/g) || []).length, 8,
+  'The public demo should show exactly eight fictional roles');
+assert.match(demoHtml, /function resetDemo\(\)/);
+assert.ok(!demoHtml.includes('n8n.stephanboner.ch'), 'Demo leaks private service URLs');
+const previewFile = path.join(root, 'docs/assets/rolehorizon-preview.png');
+assert.ok(fs.existsSync(previewFile), 'Missing updated hero screenshot');
+const previewBytes = fs.readFileSync(previewFile);
+assert.ok(previewBytes.length > 100000, 'Hero screenshot is unexpectedly small');
+assert.equal(previewBytes.subarray(1, 4).toString('ascii'), 'PNG',
+  'Hero screenshot must be a PNG');
+assert.ok(!fs.existsSync(path.join(root, 'docs/assets/Unknown.png')),
+  'Temporary upload name is still present');
+
 const manifest=JSON.parse(read('apps-script/appsscript.json'));
 assert.equal(manifest.webapp.access,'MYSELF');
 assert.equal(manifest.runtimeVersion,'V8');
