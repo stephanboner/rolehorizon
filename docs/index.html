@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de-CH">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
@@ -48,6 +48,8 @@
     .brand-name { font-size: 18px; font-weight: 850; letter-spacing: -.6px; }
     .brand-name i { color: var(--primary); font-style: normal; }
     .brand-sub { font-size: 12px; color: var(--muted); margin-top: 0; }
+    .showcase-tag { margin-left: 18px; padding: 6px 11px; background: #e8eaff; color: #494ece; font-size: 10px; font-weight: 800; border-radius: 999px; letter-spacing: .07em; white-space: nowrap; }
+    .demo-tag { padding: 7px 12px; background: #e0f5e8; color: #16835d; font-size: 10px; font-weight: 800; border-radius: 999px; letter-spacing: .06em; white-space: nowrap; }
     .top-actions { margin-left: auto; display: flex; gap: 9px; align-items: center; }
     .action-btn {
       border: 1px solid var(--line); background: white; color: var(--text); font-weight: 650;
@@ -234,6 +236,7 @@
       .drawer-title { font-size: 18px; }
       .input-grid { gap: 9px; }
     }
+    @media (max-width: 640px) { .showcase-tag { display: none; } .demo-tag { font-size: 9px; padding: 6px 9px; } }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; transition: none !important; }
     }
@@ -242,85 +245,87 @@
 <body>
   <main class="layout">
     <header class="topbar">
-      <div class="brand-mark" aria-hidden="true">↗</div>
+      <div class="brand-mark" aria-hidden="true">R</div>
       <div>
         <div class="brand-name">RoleHorizon<i>.</i></div>
-        <div class="brand-sub">Dein persönlicher Job-Tracker</div>
+        <div class="brand-sub">Your job intelligence workspace</div>
       </div>
+      <span class="showcase-tag">INTERACTIVE SHOWCASE</span>
       <div class="top-actions">
-        <a id="rolehorizonInputLink" class="action-btn sheet-link" href="#"
-           target="_blank" rel="noopener noreferrer" title="Neue Stelle über das n8n-Formular erfassen" aria-label="Neue Stelle erfassen">
+        <span class="demo-tag">SYNTHETIC DATA</span>
+        <a id="rolehorizonInputLink" class="action-btn sheet-link" href="#" hidden
+           target="_blank" rel="noopener noreferrer" title="Add a role through the n8n form" aria-label="Add a role">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M12 5H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-6"/><path d="M15 5h6m-3-3v6"/><path d="M8 11h5M8 15h8"/>
           </svg>
-          <span class="action-text">Stelle erfassen</span>
+          <span class="action-text">Add role</span>
         </a>
-        <button id="companyAdd" class="action-btn" type="button" title="Neue Firmenquelle hinzufügen" aria-label="Neue Firmenquelle hinzufügen">
+        <button id="companyAdd" class="action-btn" type="button" hidden title="Add a company source" aria-label="Add a company source">
           <span aria-hidden="true" style="font-size:20px;line-height:1">+</span>
-          <span class="action-text">Firma hinzufügen</span>
+          <span class="action-text">Add company</span>
         </button>
-        <a id="rolehorizonSheetLink" class="action-btn sheet-link" target="_blank" rel="noopener noreferrer"
-          href="#" title="Google Sheet öffnen" aria-label="Google Sheet öffnen">
+        <a id="rolehorizonSheetLink" class="action-btn sheet-link" hidden target="_blank" rel="noopener noreferrer"
+          href="#" title="Open Google Sheet" aria-label="Open Google Sheet">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg>
-          <span class="action-text">Tabelle</span>
+          <span class="action-text">Spreadsheet</span>
         </a>
-        <button id="refresh" class="action-btn" type="button" title="Aktualisieren" aria-label="Aktualisieren">
+        <button id="refresh" class="action-btn" type="button" title="Reset example data" aria-label="Reset example data">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7v5h-5"/><path d="M4 17v-5h5"/><path d="M5.6 9.5a7 7 0 0 1 12-2.3L20 12M4 12l2.4 4.8a7 7 0 0 0 12-2.2"/></svg>
-          <span class="action-text">Aktualisieren</span>
+          <span class="action-text">Reset demo</span>
         </button>
       </div>
     </header>
 
     <section class="hero" aria-labelledby="hero-title">
-      <div class="eyebrow">BEWERBUNGEN IM BLICK</div>
-      <h1 id="hero-title">Alle Chancen.<br><span>Ein Überblick.</span></h1>
-      <p class="hero-p">Durchstöbern, einschätzen und Bewerbungen nachverfolgen – auch unterwegs.</p>
+      <div class="eyebrow">PERSONAL JOB INTELLIGENCE</div>
+      <h1 id="hero-title">Find the signal<br><span>in the noise.</span></h1>
+      <p class="hero-p">Discover opportunities, focus on the best fit, and stay on top of your search.</p>
     </section>
-    <div id="demoNote" class="demo-note" hidden>Vorschau-Modus: Hier siehst du Beispieldaten. Nach dem Veröffentlichen in Google Apps Script werden automatisch deine echten Stellen geladen.</div>
+    <div id="demoNote" class="demo-note" hidden><strong>Demo mode:</strong> All companies and roles are fictional. Changes are temporary and reset when you refresh the page or click “Reset demo.” No account or Google Sheet is needed.</div>
     <div id="errorNote" class="error-note" role="alert" hidden></div>
 
-    <section class="stats" aria-label="Statistik">
-      <div class="stat"><div id="statAll" class="stat-value">–</div><div class="stat-label">Aktiv</div></div>
-      <div class="stat stat-top"><div id="statTop" class="stat-value">–</div><div class="stat-label">Top</div></div>
-      <div class="stat"><div id="statOpen" class="stat-value">–</div><div class="stat-label">Offen</div></div>
-      <div class="stat stat-review"><div id="statReview" class="stat-value">–</div><div class="stat-label">Prüfen</div></div>
+    <section class="stats" aria-label="Demo statistics">
+      <div class="stat"><div id="statAll" class="stat-value">–</div><div class="stat-label">Opportunities tracked</div></div>
+      <div class="stat stat-top"><div id="statTop" class="stat-value">–</div><div class="stat-label">Top picks</div></div>
+      <div class="stat"><div id="statOpen" class="stat-value">–</div><div class="stat-label">In progress</div></div>
+      <div class="stat stat-review"><div id="statReview" class="stat-value">–</div><div class="stat-label">Awaiting review</div></div>
     </section>
 
     <section class="controls" aria-labelledby="jobs-heading">
       <div class="section-heading">
-        <h2 id="jobs-heading">Deine Stellen</h2>
-        <p id="lastFetched" aria-live="polite">Wird geladen …</p>
+        <h2 id="jobs-heading">Your opportunities</h2>
+        <p id="lastFetched" aria-live="polite">Loading example data…</p>
       </div>
       <div class="search-row">
         <div class="search-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><circle cx="10.8" cy="10.8" r="7"/><path d="m16 16 4.5 4.5"/></svg>
-          <input id="search" class="search" type="search" autocomplete="off" placeholder="Firma, Jobtitel oder Stichwort suchen" aria-label="Stellen durchsuchen">
+          <input id="search" class="search" type="search" autocomplete="off" placeholder="Search company, role, or description…" aria-label="Search opportunities">
         </div>
-        <select id="appliedFilter" class="filter-select" aria-label="Nach Bewerbungsstatus filtern">
-          <option value="all">Alle aktiven Stellen</option>
-          <option value="all_with_inactive">Alle inkl. ausgeblendeter</option>
-          <option value="offen">Nicht beworben</option>
-          <option value="In Vorbereitung">In Vorbereitung</option>
-          <option value="Später">Später</option>
-          <option value="Ja">Beworben</option>
-          <option value="Eingeladen">Eingeladen</option>
-          <option value="Abgelehnt">Abgelehnt</option>
-          <option value="Archiviert">Archiviert</option>
+        <select id="appliedFilter" class="filter-select" aria-label="Filter by application status">
+          <option value="all">All application statuses</option>
+          <option value="all_with_inactive">Include archived and closed</option>
+          <option value="offen">Not applied</option>
+          <option value="In Vorbereitung">Preparing</option>
+          <option value="Später">For later</option>
+          <option value="Ja">Applied</option>
+          <option value="Eingeladen">Interviewing</option>
+          <option value="Abgelehnt">Rejected</option>
+          <option value="Archiviert">Archived</option>
         </select>
       </div>
-      <div id="ratingFilters" class="filter-chips" role="group" aria-label="Nach Einschätzung filtern"></div>
+      <div id="ratingFilters" class="filter-chips" role="group" aria-label="Filter by fit rating"></div>
       <div class="results-toolbar">
         <div id="resultsLine" class="results-line" aria-live="polite"></div>
         <button id="bulkArchive" type="button" class="bulk-archive-btn"
-          title="Alle Stellen archivieren, die durch die aktuellen Such- und Filtereinstellungen angezeigt werden."
-          aria-label="Alle aktuell angezeigten Stellen archivieren" disabled>
+          title="Archive the roles currently shown by your search and filters."
+          aria-label="Archive displayed opportunities" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v11h14V9M10 13h4"/></svg>
-          <span id="bulkArchiveLabel">Angezeigte archivieren</span>
+          <span id="bulkArchiveLabel">Archive displayed</span>
         </button>
       </div>
       <div id="jobGrid" class="job-grid" aria-busy="true"></div>
     </section>
-    <p class="footer-hint">Synchronisiert mit Google Sheets · Änderungen an Bewerbungsstatus und Notizen werden direkt gespeichert</p>
+    <p class="footer-hint">Interactive showcase · Synthetic example data · No live services or personal information</p>
   </main>
 
   <div id="overlay" class="overlay" hidden>
@@ -331,58 +336,58 @@
           <div id="drawerCompany" class="drawer-company"></div>
           <div id="drawerTitle" class="drawer-title"></div>
         </div>
-        <button type="button" class="close-btn" id="close" aria-label="Schliessen">×</button>
+        <button type="button" class="close-btn" id="close" aria-label="Close">×</button>
       </div>
       <div class="drawer-scroll">
         <form id="editForm">
           <div class="input-grid">
-            <label class="field">Einschätzung
+            <label class="field">Fit rating
               <select id="editRating">
-                <option value="">Noch keine</option>
-                <option value="Top">Top</option>
-                <option value="Mittel">Mittel</option>
-                <option value="Too stretchy">Too stretchy</option>
-                <option value="langweilig">langweilig</option>
-                <option value="Falscher Ort">Falscher Ort</option>
+                <option value="">Not rated</option>
+                <option value="Top">Top pick</option>
+                <option value="Mittel">Medium fit</option>
+                <option value="Too stretchy">Stretch role</option>
+                <option value="langweilig">Low interest</option>
+                <option value="Falscher Ort">Wrong location</option>
               </select>
             </label>
-            <label class="field">Bewerbungsstatus
+            <label class="field">Application status
               <select id="editApplied">
-                <option value="">Nicht gesetzt</option>
-                <option value="Nein">Nein</option>
-                <option value="In Vorbereitung">In Vorbereitung</option>
-                <option value="Später">Später</option>
-                <option value="Ja">Ja – Beworben</option>
-                <option value="Eingeladen">Eingeladen</option>
-                <option value="Abgelehnt">Abgelehnt</option>
-                <option value="Archiviert">Archiviert</option>
+                <option value="">Not set</option>
+                <option value="Nein">Not applied</option>
+                <option value="In Vorbereitung">Preparing</option>
+                <option value="Später">For later</option>
+                <option value="Ja">Applied</option>
+                <option value="Eingeladen">Interviewing</option>
+                <option value="Abgelehnt">Rejected</option>
+                <option value="Archiviert">Archived</option>
               </select>
             </label>
           </div>
-          <label class="field notes-field">Deine Bemerkungen
-            <textarea id="editNotes" maxlength="20000" placeholder="Was spricht für oder gegen die Stelle? Nächste Schritte …"></textarea>
+          <label class="field notes-field">Your notes
+            <textarea id="editNotes" maxlength="20000" placeholder="What makes this role interesting? What should you do next?…"></textarea>
           </label>
         </form>
         <div class="detail-separator"></div>
-        <h3 class="detail-heading">Bewerbungsunterlagen</h3>
+        <h3 class="detail-heading">Application documents</h3>
         <div class="tracking-panel">
-          <div class="tracking-row"><div class="detail-label">Workflowstatus</div><div id="detailWorkflowStatus" class="tracking-value"></div></div>
-          <div class="tracking-row"><div class="detail-label">Erstellt am</div><div id="detailPreparedAt" class="tracking-value"></div></div>
-          <div class="tracking-row"><div class="detail-label">iCloud Drive – Ablagepfad</div><div id="detailIcloudFolder" class="tracking-value"></div></div>
-          <div class="tracking-caption">Die Dokumente werden in iCloud gespeichert. «Beworben» musst du nach dem tatsächlichen Versand selbst auf Ja setzen. Zum Aktualisieren die Stellenliste neu laden.</div>
+          <div class="tracking-row"><div class="detail-label">Workflow status</div><div id="detailWorkflowStatus" class="tracking-value"></div></div>
+          <div class="tracking-row"><div class="detail-label">Prepared on</div><div id="detailPreparedAt" class="tracking-value"></div></div>
+          <div class="tracking-row"><div class="detail-label">Private storage location</div><div id="detailIcloudFolder" class="tracking-value"></div></div>
+          <div class="tracking-caption">Document preparation is available only in the connected private application. Drafts are never submitted automatically.</div>
         </div>
         <div class="detail-separator"></div>
-        <h3 class="detail-heading">Die Stelle im Überblick</h3>
-        <div class="detail-section"><div class="detail-label">Über die Firma</div><div id="detailAbout" class="detail-copy"></div></div>
-        <div class="detail-section"><div class="detail-label">Jobbeschreibung</div><div id="detailDescription" class="detail-copy"></div></div>
-        <div class="detail-section"><div class="detail-label">Anforderungen</div><div id="detailRequirements" class="detail-copy"></div></div>
-        <a id="detailLink" class="source-link" target="_blank" rel="noopener noreferrer" hidden>Originalausschreibung öffnen ↗</a>
+        <h3 class="detail-heading">Role overview</h3>
+        <div class="detail-section"><div class="detail-label">About the company</div><div id="detailAbout" class="detail-copy"></div></div>
+        <div class="detail-section"><div class="detail-label">Role description</div><div id="detailDescription" class="detail-copy"></div></div>
+        <div class="detail-section"><div class="detail-label">Requirements</div><div id="detailRequirements" class="detail-copy"></div></div>
+        <a id="detailLink" class="source-link" target="_blank" rel="noopener noreferrer" hidden>View original job posting ↗</a>
       </div>
       <div class="drawer-footer">
-        <button id="deleteJobButton" type="button" class="delete-btn" title="Gesamte Zeile aus Google Sheets entfernen">Löschen</button>
-        <button id="prepareApplicationButton" type="button" class="prepare-btn">Bewerbung vorbereiten</button>
-        <button id="cancel" type="button" class="cancel-btn">Abbrechen</button>
-        <button id="save" type="button" class="save-btn">Änderungen speichern</button>
+        <button id="deleteJobButton" type="button" class="delete-btn" title="Remove this role from the demo">Delete</button>
+        <button id="prepareApplicationButton" type="button" class="prepare-btn" hidden>Prepare documents</button>
+        <button id="cancel" type="button" class="cancel-btn">Cancel</button>
+        <button id="save" type="button" class="save-btn">Save changes</button>
       </div>
     </section>
   </div>
@@ -391,47 +396,47 @@
     <section class="drawer" role="dialog" aria-modal="true" aria-labelledby="sourceTitle">
       <div class="drawer-header">
         <div class="drawer-title-wrap">
-          <div class="drawer-company">FIRMENQUELLEN</div>
-          <div id="sourceTitle" class="drawer-title">Firma hinzufügen</div>
+          <div class="drawer-company">COMPANY SOURCES</div>
+          <div id="sourceTitle" class="drawer-title">Add company</div>
         </div>
-        <button type="button" class="close-btn" id="sourceClose" aria-label="Schliessen">×</button>
+        <button type="button" class="close-btn" id="sourceClose" aria-label="Close">×</button>
       </div>
       <div class="drawer-scroll">
         <div class="source-form">
-          <label class="field">Stellenlink oder vollständige Stellenbeschreibung
-            <textarea id="sourceInput" maxlength="18000" placeholder="Link zu einer konkreten Stelle oder ihren Beschreibungstext einfügen …"></textarea>
+          <label class="field">Job posting URL or full role description
+            <textarea id="sourceInput" maxlength="18000" placeholder="Paste a job posting URL or the complete job description…"></textarea>
           </label>
-          <p class="source-help">Die Recherche sucht nach der offiziellen Karriereübersicht, nicht nur nach dieser einzelnen Stelle. Bei Ashby, Lever und ähnlichen Plattformen ermitteln wir nach Möglichkeit das vollständige Firmenboard.</p>
-          <button id="sourceSearch" type="button" class="prepare-btn">Karriereseite finden</button>
+          <p class="source-help">Find the company’s official careers page—not just one vacancy. Supported ATS boards include Ashby, Lever and other platforms.</p>
+          <button id="sourceSearch" type="button" class="prepare-btn">Find careers page</button>
           <div id="sourceStatus" class="source-message" hidden role="status" aria-live="polite"></div>
           <form id="sourceResult" class="source-result" hidden>
-            <h3>Quelle kontrollieren und speichern</h3>
-            <div class="source-help">Bitte öffne den vorgeschlagenen Link und kontrolliere, ob er wirklich alle relevanten Stellen dieser Firma zeigt.</div>
-            <label class="field">Firma
-              <input id="sourceCompany" type="text" maxlength="140" placeholder="Firmenname" required>
+            <h3>Review and save the company source</h3>
+            <div class="source-help">Open the suggested URL and confirm it lists all relevant roles at this company.</div>
+            <label class="field">Company
+              <input id="sourceCompany" type="text" maxlength="140" placeholder="Company name" required>
             </label>
-            <label class="field">Karriereseite
+            <label class="field">Careers page
               <input id="sourceCareerUrl" type="url" maxlength="1800" placeholder="https://…" required>
             </label>
-            <a id="sourcePreview" class="source-link-preview" target="_blank" rel="noopener noreferrer" hidden>Vorgeschlagene Karriereseite prüfen ↗</a>
+            <a id="sourcePreview" class="source-link-preview" target="_blank" rel="noopener noreferrer" hidden>Review suggested careers page ↗</a>
             <div class="input-grid">
-              <label class="field">Quellentyp
+              <label class="field">Source type
                 <select id="sourceType">
                   <option>Auto</option><option>Greenhouse</option><option>Lever</option>
                   <option>Lever EU</option><option>Ashby</option><option>HTML</option>
                   <option>Workable</option><option>Recruitee</option>
                 </select>
               </label>
-              <label class="field">Für tägliche Scans aktiv
-                <select id="sourceActive"><option value="Nein">Nein – erst prüfen</option><option value="Ja">Ja – aktivieren</option></select>
+              <label class="field">Include in daily scans
+                <select id="sourceActive"><option value="Nein">No — review first</option><option value="Ja">Yes — enable</option></select>
               </label>
             </div>
             <div id="sourceReason" class="source-message"></div>
-            <a id="sourceEvidence" class="source-evidence" target="_blank" rel="noopener noreferrer" hidden>Gefundene Quelle ansehen ↗</a>
+            <a id="sourceEvidence" class="source-evidence" target="_blank" rel="noopener noreferrer" hidden>View supporting source ↗</a>
             <div id="sourceDuplicate" class="source-message warning" hidden></div>
             <div class="source-footer">
-              <button type="button" id="sourceCancel" class="cancel-btn">Abbrechen</button>
-              <button type="submit" id="sourceSave" class="save-btn">Firma speichern</button>
+              <button type="button" id="sourceCancel" class="cancel-btn">Cancel</button>
+              <button type="submit" id="sourceSave" class="save-btn">Save company</button>
             </div>
           </form>
         </div>
